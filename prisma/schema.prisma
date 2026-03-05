@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+model Building {
+  id      Int      @id @default(autoincrement())
+  name    String
+  address String?  // Otazník znamená, že sloupec může být NULL
+  img     String?
+  floors  Floor[]  // Prisma automaticky ví, že budova má více pater
+}
+
+model Floor {
+  id          Int       @id @default(autoincrement())
+  levelNumber Int
+  name        String?
+  buildingId  Int
+  building    Building  @relation(fields: [buildingId], references: [id])
+  rooms       Room[]
+}
+
+model Room {
+  id       Int     @id @default(autoincrement())
+  name     String
+  floorId  Int
+  floor    Floor   @relation(fields: [floorId], references: [id])
+  items    Item[]
+}
+
+model ItemType {
+  id    Int    @id @default(autoincrement())
+  name  String
+  items Item[]
+}
+
+model Item {
+  id              Int      @id @default(autoincrement())
+  inventoryNumber String
+  name            String
+  specifications  String?
+  typeId          Int
+  roomId          Int
+  type            ItemType @relation(fields: [typeId], references: [id])
+  room            Room     @relation(fields: [roomId], references: [id])
+}
