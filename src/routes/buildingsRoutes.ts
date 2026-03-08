@@ -15,7 +15,6 @@ const typeDefs = `#graphql
     buildingId: Int!
   }
 
- 
   type Building {
     id: ID!
     name: String!
@@ -24,10 +23,15 @@ const typeDefs = `#graphql
     floors: [Floor!]! # Propojení na patra
   }
 
-  
   type Query {
     buildings: [Building!]!         
     building(id: ID!): Building 
+  }
+  
+  type Mutation {
+  createBuilding(name: String!, address: String): Building!
+  # delete building by Id
+  deleteBuilding(id: ID!) Building!
   }
 `;
 
@@ -46,7 +50,6 @@ const resolvers = {
       }
     },
 
-    
     building: async (_parent: unknown, args: {id: string}) => {
       try {
         const building = await prisma.building.findUnique({
@@ -63,6 +66,33 @@ const resolvers = {
         throwError('Building not found', 'NOT_FOUND');
       }
     }
+  },
+  Mutation: {
+    createBuilding: async(_parent: unknown, args: {name: string, address?: string}) => {
+      try{
+        const newBuilding = await prisma.building.create({
+          data: {
+            name: args.name,
+            address: args.address
+          }
+        });
+        return newBuilding;
+      }catch(error){
+        throwError('Creating building failed');
+      }
+    }
+  },
+  deleteBuilding: async (_parent: unknown, args: {id: number}) => {
+    try{
+        const deletedBuilding = await prisma.building.delete({
+          where: {
+            id: Number(args.id)
+          }
+        });
+        return deletedBuilding;
+    }catch(error){
+      throwError('Deleting failed');
+    }
   }
 };
 
@@ -71,7 +101,6 @@ const server = new ApolloServer({
   resolvers,
 });
 
-// Tato funkce server nastartuje
 const startServer = async () => {
   const { url } = await startStandaloneServer(server, {
     listen: { port: 4000 },
