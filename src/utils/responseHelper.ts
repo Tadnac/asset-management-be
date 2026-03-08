@@ -1,5 +1,10 @@
-import { Response } from "express";
+import { GraphQLError } from 'graphql';
 
-export const sendError = (res: Response,statusCode: number, message: string) => {
-    return res.status(statusCode).json({ error: message });
+
+export const throwError = (message: string, code: string = 'INTERNAL_SERVER_ERROR') => {
+    throw new GraphQLError(message, {
+        extensions: {
+            code: code,
+        },
+    });
 };

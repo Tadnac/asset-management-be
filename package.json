@@ -21,10 +21,12 @@
   },
   "homepage": "https://github.com/Tadnac/asset-management-be#readme",
   "dependencies": {
+    "@apollo/server": "^5.4.0",
     "@prisma/client": "^6.19.2",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "graphql": "^16.13.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

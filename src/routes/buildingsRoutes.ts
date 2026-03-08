@@ -1,38 +1,82 @@
-import { Router } from 'express';
+import { ApolloServer } from '@apollo/server';
+import { startStandaloneServer } from '@apollo/server/standalone';
 import { PrismaClient } from '@prisma/client';
-import { sendError } from '../utils/responseHelper';
+import { throwError } from '../utils/responseHelper';
 
-const router = Router();
 const prisma = new PrismaClient();
 
- // fetch all buildings for basic basic card display
-router.get('/',async (req, res) => {
-    try{
-        // loading by prisma by prisma.findMany method
-        const buildings = await prisma.building.findMany();
-        res.json(buildings);
-    }catch($e){
-        return sendError(res,500,'Loading building failed');
+
+const typeDefs = `#graphql
+  
+  type Floor {
+    id: ID!
+    levelNumber: Int!
+    name: String
+    buildingId: Int!
+  }
+
+ 
+  type Building {
+    id: ID!
+    name: String!
+    address: String
+    img: String
+    floors: [Floor!]! # Propojení na patra
+  }
+
+  
+  type Query {
+    buildings: [Building!]!         
+    building(id: ID!): Building 
+  }
+`;
+
+
+const resolvers = {
+  Query: {
+    
+    buildings: async () => {
+      try {
+        
+        return await prisma.building.findMany({
+          include: { floors: true }
+        });
+      } catch (error) {
+        throw new Error('Loading buildings failed');
+      }
+    },
+
+    
+    building: async (_parent: unknown, args: {id: string}) => {
+      try {
+        const building = await prisma.building.findUnique({
+          where: { id: Number(args.id) }, 
+          include: { floors: true }
+        });
+        
+        if (!building) {
+          throwError('Building not found', 'NOT_FOUND');
+        }
+        
+        return building;
+      } catch (error) {
+        throwError('Building not found', 'NOT_FOUND');
+      }
     }
-       
+  }
+};
+
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
 });
 
-// fetching single building object
- router.get('/:id', async (req, res) => {
-    const { id } = req.params;
-    try {
-        const building = await prisma.building.findUnique({
-            where: {id: Number(id)},
-            // use include for 'children' items like floors
-            include: {floors: true} 
-        });
-        if(!building){
-        return sendError(res,404,'Building not found');
-        }
-        res.json(building)
-        }catch(error){
-            return sendError(res,500,'Loading building failed');
-        }      
- });
+// Tato funkce server nastartuje
+const startServer = async () => {
+  const { url } = await startStandaloneServer(server, {
+    listen: { port: 4000 },
+  });
+  console.log(`GraphQL Server běží na adrese: ${url}`);
+};
 
- export default router;
+startServer();
