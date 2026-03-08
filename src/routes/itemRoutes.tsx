@@ -20,7 +20,7 @@ router.get('/', async(req,res) => {
             }
         });
     if (!item){
-      return 
+      return sendError(404,'Item not found');
     }
   
   }
