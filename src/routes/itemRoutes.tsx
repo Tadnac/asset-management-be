@@ -22,6 +22,9 @@ router.get('/', async(req,res) => {
     if (!item){
       return sendError(404,'Item not found');
     }
-  
+      res.json(item);
+  }catch(Error){
+    sendError(500,'Loading failed');
   }
   });
+
