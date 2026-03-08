@@ -15,7 +15,7 @@ const startServer = async () => {
   const { url } = await startStandaloneServer(server, {
     listen: { port: 4000 },
   });
-  console.log(`🚀 GraphQL Server běží úhledně na adrese: ${url}`);
+  console.log(`GraphQL Server běží na adrese: ${url}`);
 };
 
 startServer();
