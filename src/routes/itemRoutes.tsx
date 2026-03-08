@@ -24,7 +24,26 @@ router.get('/', async(req,res) => {
     }
       res.json(item);
   }catch(Error){
-    sendError(500,'Loading failed');
+   return sendError(500,'Loading failed');
   }
   });
+router.get('/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const item = await prisma.item.findUnique({
+            where: { id: Number(id) },
+            include: { 
+                type: true,
+                room: true
+            }
+        });
+        
+        if (!item) {
+            return sendError(res, 404, 'Item not found');
+        }
+        res.json(item);
+    } catch (error) {
+        return sendError(res, 500, 'Loading item failed');
+    }
+});
 
