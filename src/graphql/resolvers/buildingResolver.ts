@@ -47,9 +47,8 @@ export const buildingResolvers = {
       }catch(error){
         throwError('Creating building failed');
       }
-    }
-  },
-  deleteBuilding: async (_parent: unknown, args: {id: number}) => {
+    },
+     deleteBuilding: async (_parent: unknown, args: {id: number}) => {
     try{
         const deletedBuilding = await prisma.building.delete({
           where: {
@@ -60,5 +59,6 @@ export const buildingResolvers = {
     }catch(error){
       throwError('Deleting failed');
     }
+  }
   }
 };
