@@ -16,7 +16,7 @@ export const floorResolvers = {
         },
         floor: async (_parent: unknown, args: {id: string}) => {
            try {
-            return await prisma.floor.findUnique({
+            const floor =  await prisma.floor.findUnique({
               where: {id: Number(args.id)},
               include: {building: true}
             });
@@ -30,13 +30,13 @@ export const floorResolvers = {
         } 
       },
       Mutation: {
-         createFloor: async (_parent: unknown, args: {levelNumber: string, name?: string, buildingId: number}) => {
+         createFloor: async (_parent: unknown, args: {levelNumber: number, name?: string, buildingId: number}) => {
            try {
             const newFloor = await prisma.floor.create({
               data: {
                 levelNumber: args.levelNumber,
                 name: args.name,
-                building: args.buildingId
+                buildingId: args.buildingId
               }
             });
              return newFloor;
