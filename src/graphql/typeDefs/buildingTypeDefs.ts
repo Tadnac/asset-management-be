@@ -1,18 +1,11 @@
 export const buildingTypeDefs = `#graphql
   
-  type Floor {
-    id: ID!
-    levelNumber: Int!
-    name: String
-    buildingId: Int!
-  }
-
   type Building {
     id: ID!
     name: String!
     address: String
     img: String
-    floors: [Floor!]! # Propojení na patra
+    floors: [Floor!]! 
   }
 
   type Query {
