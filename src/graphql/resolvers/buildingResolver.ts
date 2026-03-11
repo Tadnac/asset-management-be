@@ -40,7 +40,7 @@ export const buildingResolvers = {
         const newBuilding = await prisma.building.create({
           data: {
             name: args.name,
-            address: args.address
+            address: args.address ?? null
           }
         });
         return newBuilding;
@@ -48,7 +48,7 @@ export const buildingResolvers = {
         throwError('Creating building failed');
       }
     },
-     deleteBuilding: async (_parent: unknown, args: {id: number}) => {
+     deleteBuilding: async (_parent: unknown, args: {id: string}) => {
     try{
         const deletedBuilding = await prisma.building.delete({
           where: {

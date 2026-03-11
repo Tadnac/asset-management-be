@@ -16,6 +16,6 @@ export const buildingTypeDefs = `#graphql
   type Mutation {
   createBuilding(name: String!, address: String): Building!
   # delete building by Id
-  deleteBuilding(id: ID!) Building!
+  deleteBuilding(id: ID!): Building!
   }
 `;

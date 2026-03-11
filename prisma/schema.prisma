@@ -5,14 +5,14 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
 model Building {
   id      Int      @id @default(autoincrement())
   name    String
@@ -22,20 +22,28 @@ model Building {
 }
 
 model Floor {
-  id          Int       @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   levelNumber Int
   name        String?
   buildingId  Int
-  building    Building  @relation(fields: [buildingId], references: [id])
+  
+ 
+  building    Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
   rooms       Room[]
 }
 
 model Room {
-  id       Int     @id @default(autoincrement())
-  name     String
-  floorId  Int
-  floor    Floor   @relation(fields: [floorId], references: [id])
-  items    Item[]
+  id          Int      @id @default(autoincrement())
+  name        String
+  
+  
+  description String?  
+  
+  floorId     Int
+  
+  
+  floor       Floor    @relation(fields: [floorId], references: [id], onDelete: Cascade)
+  items       Item[]
 }
 
 model ItemType {
@@ -51,6 +59,10 @@ model Item {
   specifications  String?
   typeId          Int
   roomId          Int
+  
+ 
   type            ItemType @relation(fields: [typeId], references: [id])
-  room            Room     @relation(fields: [roomId], references: [id])
+  
+  
+  room            Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }

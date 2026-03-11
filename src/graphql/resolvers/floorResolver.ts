@@ -35,7 +35,7 @@ export const floorResolvers = {
             const newFloor = await prisma.floor.create({
               data: {
                 levelNumber: args.levelNumber,
-                name: args.name,
+                name: args.name ?? null,
                 buildingId: args.buildingId
               }
             });

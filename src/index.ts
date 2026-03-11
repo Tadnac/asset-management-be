@@ -8,9 +8,13 @@ import { buildingResolvers } from './graphql/resolvers/buildingResolver';
 import { floorTypeDefs } from './graphql/typeDefs/floorTypeDefs';
 import { floorResolvers } from './graphql/resolvers/floorResolver';
 
+import { roomTypeDefs } from './graphql/typeDefs/roomTypeDefs';
+import { roomResolvers
+
+ } from './graphql/resolvers/roomResolver';
 const server = new ApolloServer({
-  typeDefs: [buildingTypeDefs,floorTypeDefs], 
-  resolvers: [buildingResolvers,floorResolvers],
+  typeDefs: [buildingTypeDefs,floorTypeDefs,roomTypeDefs], 
+  resolvers: [buildingResolvers,floorResolvers,roomResolvers],
 });
 
 const startServer = async () => {
