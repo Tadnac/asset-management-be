@@ -40,14 +40,13 @@ export const itemTypeRsolvers = {
         throwError('Creating item type failed', 'INTERNAL_ERROR');
       }
     },
-
     
     updateItemType: async (_parent: unknown, args: { id: string, name?: string }) => {
       try {
         const updatedItemType = await prisma.itemType.update({
           where: { id: Number(args.id) },
           data: {
-            name: args.name
+            ...(args.name !== undefined && {name: args.name})
           }
         });
         return updatedItemType;
