@@ -3,7 +3,7 @@ import { throwError } from '../../utils/responseHelper';
 
 const prisma = new PrismaClient();
 
-export const itemTypeRsolvers = {
+export const itemTypeResolvers = {
 
     Query:{
         itemTypes: async() => {
