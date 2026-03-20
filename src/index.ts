@@ -16,9 +16,13 @@ import { itemTypeTypeDefs } from './graphql/typeDefs/itemTypeTypeDefs';
 
 import { itemResolvers } from './graphql/resolvers/itemResolver';
 import { itemTypeDefs } from './graphql/typeDefs/itemTypeDefs';
+
+import { userTypeDefs } from './graphql/typeDefs/userTypeDefs';
+import { userResolvers } from  './graphql/resolvers/userResolver';
+
 const server = new ApolloServer({
-  typeDefs: [buildingTypeDefs,floorTypeDefs,roomTypeDefs,itemTypeTypeDefs,itemTypeDefs], 
-  resolvers: [buildingResolvers,floorResolvers,roomResolvers,itemTypeResolvers,itemResolvers],
+  typeDefs: [buildingTypeDefs,floorTypeDefs,roomTypeDefs,itemTypeTypeDefs,itemTypeDefs, userTypeDefs], 
+  resolvers: [buildingResolvers,floorResolvers,roomResolvers,itemTypeResolvers,itemResolvers, userResolvers],
 });
 
 const startServer = async () => {

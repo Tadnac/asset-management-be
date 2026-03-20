@@ -19,6 +19,9 @@ model Building {
   address String?  // Otazník znamená, že sloupec může být NULL
   img     String?
   floors  Floor[]  // Prisma automaticky ví, že budova má více pater
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Floor {
@@ -26,24 +29,23 @@ model Floor {
   levelNumber Int
   name        String?
   buildingId  Int
-  
- 
   building    Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
   rooms       Room[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Room {
   id          Int      @id @default(autoincrement())
   name        String
-  
-  
   description String?  
-  
   floorId     Int
-  
-  
   floor       Floor    @relation(fields: [floorId], references: [id], onDelete: Cascade)
   items       Item[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ItemType {
@@ -59,10 +61,27 @@ model Item {
   specifications  String?
   typeId          Int
   roomId          Int
-  
- 
   type            ItemType @relation(fields: [typeId], references: [id])
-  
-  
   room            Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserType {
+  id Int @id @default(autoincrement())
+  name String @unique
+
+  users User[]
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  email String @unique
+  password String
+
+  userTypeId Int
+  userType UserType @relation(fields: [userTypeId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
