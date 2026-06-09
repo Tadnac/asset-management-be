@@ -6,7 +6,7 @@ import { throwError } from '../../utils/responseHelper';
 
 const prisma = new PrismaClient();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'super_tajny_klic_pro_asset_management';
+
 
 export const userResolvers = {
     Mutation: {
@@ -37,7 +37,7 @@ export const userResolvers = {
                     });
                     const token = jwt.sign(
                         { userId: newUser.id, role: newUser.userType.name },
-                        JWT_SECRET, {expiresIn: '1d'}
+                        process.env.JWT_SECRET as string, {expiresIn: '1d'}
                     );
                     return {
                         token,
@@ -62,7 +62,7 @@ export const userResolvers = {
             }
             const token = jwt.sign(
                 { userId: user.id, role: user.userType.name },
-                JWT_SECRET, {expiresIn: '1d'}
+                process.env.JWT_SECRET as string, {expiresIn: '1d'}
             );
             return {token,user};
         }catch(error){
