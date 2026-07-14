@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../lib/prisma';
 import { throwError } from '../../utils/responseHelper';
 
 const prisma = new PrismaClient();
@@ -19,8 +19,9 @@ export const buildingResolvers = {
 
     building: async (_parent: unknown, args: {id: string}) => {
       try {
+        const buildingId = parseId(args.id, 'building id');
         const building = await prisma.building.findUnique({
-          where: { id: Number(args.id) }, 
+          where: { id: buildingId }, 
           include: { floors: true }
         });
         
