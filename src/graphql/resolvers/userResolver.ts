@@ -30,10 +30,6 @@ export const userResolvers = {
                 const defaultRole = await prisma.userType.findUnique({
                     where:{name: 'User'}
                 });
-
-                const defaultRole = await prisma.userType.findUnique({
-                   where: { name: 'User'} 
-                });
                 
                 if(!defaultRole){
                     return throwError('Role not existing. Have to be created first', 'INTERNAL_ERROR');
