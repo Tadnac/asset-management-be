@@ -45,7 +45,7 @@ export const userResolvers = {
                         include: { userType: true }
                     });
                     const token = signToken(
-                        { userId: newUser.id, role: newUser.userType.name }
+                        { id: newUser.id, role: newUser.userType.name }
                     );
                     return {
                         token,
