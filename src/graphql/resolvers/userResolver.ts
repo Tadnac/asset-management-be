@@ -103,33 +103,7 @@ export const userResolvers = {
                 throwError('Registration has failed');
             }
     },
-    login: async(_parent: unknown, args: any) => {
-        if (!args.email?.trim() || !args.password) {
-            throwError('Email and password are required', 'BAD_REQUEST');
-          }
-        try{
-            const user = await prisma.user.findUnique({
-                where:{ email: args.email },
-                include: { userType: true }
-            });
-            if(!user){
-                throwError('Bad e-mail or password', 'UNAUTHENTICATED');
-            }
-            const isValidPassword = await bcrypt.compare(args.password, user!.password);
-            if(!isValidPassword){
-                return throwError('Bad e-mail or password');
-            }
-            const token = jwt.sign(
-                { userId: user.id, role: user.userType.name },
-                process.env.JWT_SECRET as string, {expiresIn: '1d'}
-            );
-            return {token,user};
-        } catch(error){
-            return throwError('Login has failed');
-        }
-    }
-}
-}
+   
     login: async (_parent: unknown, args: AuthArgs) => {
       if (!args.email?.trim() || !args.password) {
         throwError('Email and password are required', 'BAD_REQUEST');
