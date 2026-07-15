@@ -1,29 +1,42 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../lib/prisma';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { throwError } from '../../utils/responseHelper';
+import { signToken } from '../../utils/jwt';
+import { GraphQLError } from 'graphql';
 
 
-const prisma = new PrismaClient();
-
-
+interface AuthArgs {
+    email: string;
+    password: string;
+}
 
 export const userResolvers = {
     Mutation: {
-        register: async (_parent: unknown, args: any) => {
+        register: async (_parent: unknown, args: AuthArgs) => {
+            if (!args.email?.trim() || !args.password){
+                throwError('Email and password are required', 'BAD_REQUEST');
+            }
+             if (args.password.length < 8) {
+                throwError('Password must be at least 8 characters', 'BAD_REQUEST');
+                  }
             try{
                 const existingUser = await prisma.user.findUnique({
                     where: {email: args.email}
                 });
-                if(existingUser){
-                    throwError('User already exists');
+                if (existingUser){
+                    throwError('User already exists', 'BAD_REQUEST');
                 }
 
                 const defaultRole = await prisma.userType.findUnique({
                     where:{name: 'User'}
                 });
+
+                const defaultRole = await prisma.userType.findUnique({
+                   where: { name: 'User'} 
+                });
+                
                 if(!defaultRole){
-                    return throwError('Role not existing. Have to be created first');
+                    return throwError('Role not existing. Have to be created first', 'INTERNAL_ERROR');
                 }
                     const hashedPassword = await bcrypt.hash(args.password,10);
 
@@ -31,13 +44,12 @@ export const userResolvers = {
                         data:{
                             email: args.email,
                             password: hashedPassword,
-                            userTypeId: defaultRole.id
+                            userTypeId: defaultRole!.id
                         },
                         include: { userType: true }
                     });
-                    const token = jwt.sign(
-                        { userId: newUser.id, role: newUser.userType.name },
-                        process.env.JWT_SECRET as string, {expiresIn: '1d'}
+                    const token = signToken(
+                        { userId: newUser.id, role: newUser.userType.name }
                     );
                     return {
                         token,
@@ -48,15 +60,18 @@ export const userResolvers = {
             }
     },
     login: async(_parent: unknown, args: any) => {
+        if (!args.email?.trim() || !args.password) {
+            throwError('Email and password are required', 'BAD_REQUEST');
+          }
         try{
             const user = await prisma.user.findUnique({
                 where:{ email: args.email },
                 include: { userType: true }
             });
             if(!user){
-                return throwError('Bad e-mail or password');
+                throwError('Bad e-mail or password', 'UNAUTHENTICATED');
             }
-            const isValidPassword = await bcrypt.compare(args.password, user.password);
+            const isValidPassword = await bcrypt.compare(args.password, user!.password);
             if(!isValidPassword){
                 return throwError('Bad e-mail or password');
             }
