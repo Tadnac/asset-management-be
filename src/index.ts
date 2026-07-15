@@ -20,6 +20,9 @@ import { itemTypeDefs } from './graphql/typeDefs/itemTypeDefs';
 import { userTypeDefs } from './graphql/typeDefs/userTypeDefs';
 import { userResolvers } from  './graphql/resolvers/userResolver';
 
+import { verifyToken } from './utils/jwt';
+import { Context } from './utils/authHelper';
+
 const server = new ApolloServer({
   typeDefs: [buildingTypeDefs,floorTypeDefs,roomTypeDefs,itemTypeTypeDefs,itemTypeDefs, userTypeDefs], 
   resolvers: [buildingResolvers,floorResolvers,roomResolvers,itemTypeResolvers,itemResolvers, userResolvers],
@@ -28,6 +31,19 @@ const server = new ApolloServer({
 const startServer = async () => {
   const { url } = await startStandaloneServer(server, {
     listen: { port: 4000 },
+    context: async ({ req }): Promis<Context> => {
+      const authHeader = req.headers. authorization ?? '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+
+      if (!token){
+        return {user: null};
+      }
+      const payload = verifyToken(token);
+      if (!payload) {
+        return { user: null };
+      }
+      return { user: { id: payload.id, role: payload.role } };
+    },
   });
   console.log(`GraphQL Server běží na adrese: ${url}`);
 };
