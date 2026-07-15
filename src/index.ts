@@ -32,7 +32,7 @@ const startServer = async () => {
   const { url } = await startStandaloneServer(server, {
     listen: { port: 4000 },
     context: async ({ req }): Promis<Context> => {
-      const authHeader = req.headers. authorization ?? '';
+      const authHeader = req.headers.authorization ?? '';
       const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
 
       if (!token){
