@@ -1,7 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../lib/prisma';
 import { throwError } from '../../utils/responseHelper';
+import { requireRole, Context } from '../../utils/authHelper';
+import { parseId } from '../../utils/validation';
 
-const prisma = new PrismaClient();
+
 export const floorResolvers = {
   
       Query: {
