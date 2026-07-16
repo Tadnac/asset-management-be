@@ -1,7 +1,7 @@
 import { prisma } from '../../lib/prisma';
 import { throwError } from '../../utils/responseHelper';
-
-const prisma = new PrismaClient();
+import { requireRole, Context } from '../../utils/authHelper';
+import { parseId } from '../../utils/validation';
 
 export const buildingResolvers = {
   Query: {
