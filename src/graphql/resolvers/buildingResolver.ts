@@ -36,7 +36,8 @@ export const buildingResolvers = {
     }
   },
   Mutation: {
-    createBuilding: async(_parent: unknown, args: {name: string, address?: string}) => {
+    createBuilding: async(_parent: unknown, args: {name: string, address?: string }, context: Context) => {
+      requireRole(context, 'ADMIN');
       try{
         const newBuilding = await prisma.building.create({
           data: {
@@ -49,11 +50,13 @@ export const buildingResolvers = {
         throwError('Creating building failed');
       }
     },
-     deleteBuilding: async (_parent: unknown, args: {id: string}) => {
-    try{
+     deleteBuilding: async (_parent: unknown, args: {id: string}, context: Context) => {
+      requireRole(context,'ADMIN');
+      const buildingId = parseId(args.id, 'buildingId');
+      try{
         const deletedBuilding = await prisma.building.delete({
           where: {
-            id: Number(args.id)
+            id: Number(buildingId)
           }
         });
         return deletedBuilding;
