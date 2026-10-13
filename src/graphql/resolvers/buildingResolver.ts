@@ -2,6 +2,7 @@ import { prisma } from '../../lib/prisma';
 import { throwError } from '../../utils/responseHelper';
 import { requireRole, Context } from '../../utils/authHelper';
 import { parseId } from '../../utils/validation';
+import {handleError} from '../../utils/errors';
 
 export const buildingResolvers = {
   Query: {
@@ -13,13 +14,13 @@ export const buildingResolvers = {
           include: { floors: true }
         });
       } catch (error) {
-        throw new Error('Loading buildings failed');
+        throwError('Loading buildings failed');
       }
     },
 
     building: async (_parent: unknown, args: {id: string}) => {
+      const buildingId = parseId(args.id,'building id');
       try {
-        const buildingId = parseId(args.id, 'building id');
         const building = await prisma.building.findUnique({
           where: { id: buildingId }, 
           include: { floors: true }
@@ -31,7 +32,7 @@ export const buildingResolvers = {
         
         return building;
       } catch (error) {
-        throwError('Building not found', 'NOT_FOUND');
+        handleError(error, 'Loading building failed');
       }
     }
   },
@@ -47,12 +48,12 @@ export const buildingResolvers = {
         });
         return newBuilding;
       }catch(error){
-        throwError('Creating building failed');
+        handleError(error,'Creating building failed');
       }
     },
      deleteBuilding: async (_parent: unknown, args: {id: string}, context: Context) => {
       requireRole(context,'ADMIN');
-      const buildingId = parseId(args.id, 'buildingId');
+      const buildingId = parseId(args.id, 'building id');
       try{
         const deletedBuilding = await prisma.building.delete({
           where: {
@@ -61,7 +62,7 @@ export const buildingResolvers = {
         });
         return deletedBuilding;
     }catch(error){
-      throwError('Deleting failed');
+      handleError(error,'Deleting failed');
     }
   }
   }
