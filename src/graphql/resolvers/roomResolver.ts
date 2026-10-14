@@ -1,33 +1,43 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../lib/prisma';
 import { throwError } from '../../utils/responseHelper';
+import { Context } from '../../utils/authHelper';
+import { requireAuth} from '../../utils/authHelper';
+import { requireRole } from '../../utils/authHelper';
+import { parseId } from '../../utils/validation';
+import { handleError } from '../../utils/errors';
 
-const prisma = new PrismaClient();
 
 export const roomResolvers = {
     Query:{
-        rooms: async() => {
+        rooms: async(_parent: unknown, _args: unknown, context:Context) => {
+            requireAuth(context);
             try{
                 return await prisma.room.findMany({
                     include: {floor:true}
                 });
             }catch(error){
-                return throwError('Loading rooms has failed');
+                return handleError(error,'Loading rooms has failed');
             }
         },
-        room: async(_parent: unknown, args:{id: number}) => {
+        room: async(_parent: unknown, args:{id: string}, context: Context) => {
+            requireAuth(context);
+            const roomId = parseId(args.id, 'room id');
             try{
             const room = await prisma.room.findUnique({
-                where:{id: Number(args.id)},
+                where:{id: Number(roomId)},
                 include:{floor:true}
             });
-            return room ? room :  throwError('Room not found', 'NOT_FOUND');;
+            if(!room){
+                return throwError('Room not found', 'NOT_FOUND');
+            }
         }catch(error){
-            return throwError('Loading room has failed');
+            return handleError(error,'Loading room has failed');
         }
     }
     },
     Mutation:{
-        createRoom: async(_parent: unknown, args:{name: string, description: string, floorId: number}) =>{
+        createRoom: async(_parent: unknown, args:{name: string, description: string, floorId: number}, context: Context) =>{
+            requireRole(context,'ADMIN');
             try{
             const newRoom = await prisma.room.create({
                 data:{
@@ -38,17 +48,19 @@ export const roomResolvers = {
             });
             return newRoom;
         }catch(error){
-            throwError('Creating room has failed');
+            handleError(error,'Creating room has failed');
         }
     },
-    deleteRoom: async(_parent: unknown, args: {id: string}) => {
+    deleteRoom: async(_parent: unknown, args: {id: string}, context: Context) => {
+        requireRole(context,'ADMIN');
+        parseId(args.id, 'room id');
         try{
             const deletedRoom = await prisma.room.delete({
                 where:{id: Number(args.id)}
             });
             return deletedRoom;
-        }catch{
-            throwError('Deleting room has failed');
+        }catch(error){
+             handleError(error,'Deleting room has failed');
         }
     }
 }
