@@ -6,12 +6,11 @@ import { handleError } from '../../utils/errors';
 
 
 
-
-
 export const floorResolvers = {
   
       Query: {
-        floors: async () => {
+        floors: async (_parent: unknown, _args: unknown, context: Context) => {
+          requireAuth(context);
           try {
             return await prisma.floor.findMany({
               include: {building: true}
@@ -20,7 +19,8 @@ export const floorResolvers = {
             handleError(error,'Loading floors failed');
           }
         },
-        floor: async (_parent: unknown, args: {id: string}) => {
+        floor: async (_parent: unknown, args: {id: string}, context:Context) => {
+          requireAuth(context);
           const floorId = parseId(args.id, 'floor id');
            try {
             const floor =  await prisma.floor.findUnique({
@@ -32,7 +32,7 @@ export const floorResolvers = {
              }
              return floor;
           } catch(error) {
-            handleError(error, 'Loading floors failed');
+            handleError(error, 'Loading floor failed');
           }
         } 
       },
@@ -62,7 +62,7 @@ export const floorResolvers = {
         },
          deleteFloor: async (_parent: unknown, args: {id: string}, context: Context) => {
           requireRole(context,'ADMIN');
-          const floorId = parseId(args.id, 'floor Id');
+          const floorId = parseId(args.id, 'floor id');
            try {
             const deletedFloor = await prisma.floor.delete({
               where: {id:floorId}
