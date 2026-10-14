@@ -2,6 +2,9 @@ import { prisma } from '../../lib/prisma';
 import { throwError } from '../../utils/responseHelper';
 import { requireRole, Context } from '../../utils/authHelper';
 import { parseId } from '../../utils/validation';
+import { handleError } from '../../utils/errors';
+import { error } from 'node:console';
+
 
 
 export const floorResolvers = {
@@ -13,27 +16,29 @@ export const floorResolvers = {
               include: {building: true}
             });
           } catch(error) {
-            throwError('Loading floors failed');
+            handleError(error,'Loading floors failed');
           }
         },
         floor: async (_parent: unknown, args: {id: string}) => {
+          const floorId = parseId(args.id, 'floor Id');
            try {
             const floor =  await prisma.floor.findUnique({
-              where: {id: Number(args.id)},
+              where: {id: floorId},
               include: {building: true}
             });
              if(!floor){
-               throwError('Floor not found', 'NOT_FOUND');
+               handleError(error, 'Floor not found');
              }
              return floor;
           } catch(error) {
-            throwError('Loading floors failed');
+            handleError(error, 'Loading floors failed');
           }
         } 
       },
       Mutation: {
-         createFloor: async (_parent: unknown, args: {levelNumber: number, name?: string, buildingId: number}) => {
-           try {
+         createFloor: async (_parent: unknown, args: {levelNumber: number, name?: string, buildingId: number}, context: Context) => {
+          requireRole(context, 'ADMIN');
+          try {
             const newFloor = await prisma.floor.create({
               data: {
                 levelNumber: args.levelNumber,
@@ -43,17 +48,19 @@ export const floorResolvers = {
             });
              return newFloor;
           } catch(error) {
-            throwError('Creating floor failed');
+            handleError(error, 'Creating floor failed');
           }
         },
-         deleteFloor: async (_parent: unknown, args: {id: string}) => {
+         deleteFloor: async (_parent: unknown, args: {id: string}, context: Context) => {
+          requireRole(context,'ADMIN');
+          const floorId = parseId(args.id, 'floor Id')
            try {
             const deletedFloor = await prisma.floor.delete({
-              where: {id: Number(args.id)}
+              where: {id:floorId}
             });
              return deletedFloor;
           } catch(error) {
-            throwError('Deleting floor failed');
+            handleError(error,'Deleting floor failed');
           }
         }
     }
