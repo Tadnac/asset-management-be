@@ -1,9 +1,10 @@
 import { prisma } from '../../lib/prisma';
 import { throwError } from '../../utils/responseHelper';
-import { requireRole, Context } from '../../utils/authHelper';
+import { requireAuth,requireRole, Context } from '../../utils/authHelper';
 import { parseId } from '../../utils/validation';
 import { handleError } from '../../utils/errors';
-import { error } from 'node:console';
+
+
 
 
 
@@ -20,14 +21,14 @@ export const floorResolvers = {
           }
         },
         floor: async (_parent: unknown, args: {id: string}) => {
-          const floorId = parseId(args.id, 'floor Id');
+          const floorId = parseId(args.id, 'floor id');
            try {
             const floor =  await prisma.floor.findUnique({
               where: {id: floorId},
               include: {building: true}
             });
              if(!floor){
-               handleError(error, 'Floor not found');
+                throwError('Floor not found', 'NOT_FOUND');
              }
              return floor;
           } catch(error) {
@@ -39,10 +40,18 @@ export const floorResolvers = {
          createFloor: async (_parent: unknown, args: {levelNumber: number, name?: string, buildingId: number}, context: Context) => {
           requireRole(context, 'ADMIN');
           try {
+            // check ze dana budova existuje aby mi to nechciplo na neexistujici budove
+            const building = await prisma.building.findUnique({
+              where: {id: args.buildingId},
+              select: {id: true},
+            });
+            if (!building){
+              throwError('Building not found', 'NOT_FOUND');
+            }
             const newFloor = await prisma.floor.create({
               data: {
                 levelNumber: args.levelNumber,
-                name: args.name ?? null,
+                name: args.name?.trim() || null,
                 buildingId: args.buildingId
               }
             });
@@ -53,7 +62,7 @@ export const floorResolvers = {
         },
          deleteFloor: async (_parent: unknown, args: {id: string}, context: Context) => {
           requireRole(context,'ADMIN');
-          const floorId = parseId(args.id, 'floor Id')
+          const floorId = parseId(args.id, 'floor Id');
            try {
             const deletedFloor = await prisma.floor.delete({
               where: {id:floorId}
