@@ -37,7 +37,7 @@ export const roomResolvers = {
     },
     Mutation:{
         createRoom: async(_parent: unknown, args:{name: string, description: string, floorId: number}, context: Context) =>{
-            requireRole(context,'ADMIN');
+            requireRole(context,'Admin');
             try{
             const newRoom = await prisma.room.create({
                 data:{
@@ -52,7 +52,7 @@ export const roomResolvers = {
         }
     },
     deleteRoom: async(_parent: unknown, args: {id: string}, context: Context) => {
-        requireRole(context,'ADMIN');
+        requireRole(context,'Admin');
         parseId(args.id, 'room id');
         try{
             const deletedRoom = await prisma.room.delete({
