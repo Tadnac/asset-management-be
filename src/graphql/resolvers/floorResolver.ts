@@ -3,6 +3,7 @@ import { throwError } from '../../utils/responseHelper';
 import { requireAuth,requireRole, Context } from '../../utils/authHelper';
 import { parseId } from '../../utils/validation';
 import { handleError } from '../../utils/errors';
+import { Roles } from '../../utils/roles';
 
 
 
@@ -38,7 +39,7 @@ export const floorResolvers = {
       },
       Mutation: {
          createFloor: async (_parent: unknown, args: {levelNumber: number, name?: string, buildingId: number}, context: Context) => {
-          requireRole(context, 'Admin');
+          requireRole(context, Roles.ADMIN);
           try {
             // check ze dana budova existuje aby mi to nechciplo na neexistujici budove
             const building = await prisma.building.findUnique({
@@ -61,7 +62,7 @@ export const floorResolvers = {
           }
         },
          deleteFloor: async (_parent: unknown, args: {id: string}, context: Context) => {
-          requireRole(context,'Admin');
+          requireRole(context, Roles.ADMIN);
           const floorId = parseId(args.id, 'floor id');
            try {
             const deletedFloor = await prisma.floor.delete({

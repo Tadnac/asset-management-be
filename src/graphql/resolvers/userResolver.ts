@@ -4,6 +4,7 @@ import { GraphQLError } from 'graphql';
 import { prisma } from '../../lib/prisma';
 import { throwError } from '../../utils/responseHelper';
 import { signToken } from '../../utils/jwt';
+import { Roles } from '../../utils/roles';
 
 interface AuthArgs {
   email: string;
@@ -29,7 +30,7 @@ export const userResolvers = {
         }
 
         const defaultRole = await prisma.userType.findUnique({
-          where: { name: 'User' }
+          where: { name: Roles.USER }
         });
         if (!defaultRole) {
           throwError('Role not existing. Has to be created first', 'INTERNAL_ERROR');
