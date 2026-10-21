@@ -14,7 +14,7 @@ export interface TokenPayload {
 }
 
 export const signToken = (payload: TokenPayload): string => {
-  return jwt.sign({id: payload.id,role: payload.role}, JWT_SECRET, {expiresIn: '7D', algorithm: 'HS256'});
+  return jwt.sign({id: payload.id,role: payload.role}, JWT_SECRET, {expiresIn: '7d', algorithm: 'HS256'});
  
 };
 
