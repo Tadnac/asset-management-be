@@ -51,7 +51,7 @@ export const roomResolvers = {
             const newRoom = await prisma.room.create({
                 data:{
                     name: name,
-                    description: args.description,
+                    description: args.name?.trim() || null,
                     floorId: floorId
                 }
             });

@@ -21,7 +21,7 @@ model Building {
   floors  Floor[]  // Prisma automaticky ví, že budova má více pater
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
 }
 
 model Floor {
@@ -29,11 +29,11 @@ model Floor {
   levelNumber Int
   name        String?
   buildingId  Int
-  building    Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  building    Building @relation(fields: [buildingId], references: [id], onDelete: Restrict)
   rooms       Room[]
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
 }
 
 model Room {
@@ -41,11 +41,11 @@ model Room {
   name        String
   description String?  
   floorId     Int
-  floor       Floor    @relation(fields: [floorId], references: [id], onDelete: Cascade)
+  floor       Floor    @relation(fields: [floorId], references: [id], onDelete: Restrict)
   items       Item[]
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
 }
 
 model ItemType {
@@ -62,10 +62,10 @@ model Item {
   typeId          Int
   roomId          Int
   type            ItemType @relation(fields: [typeId], references: [id])
-  room            Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  room            Room     @relation(fields: [roomId], references: [id], onDelete: Restrict)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
 }
 
 model UserType {
@@ -83,5 +83,5 @@ model User {
   userTypeId Int
   userType UserType @relation(fields: [userTypeId], references: [id])
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
 }
